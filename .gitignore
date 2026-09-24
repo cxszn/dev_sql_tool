@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.test-output/
+artifacts/
+*.log
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+/启动最新版.cmd
+/scripts/apply-sqlstudio-imports.js

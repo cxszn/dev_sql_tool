@@ -1,0 +1,24 @@
+{
+  "folders": [
+    { "path": ".." }
+  ],
+  "settings": {
+    "intelephense.files.maxSize": 33554432,
+    "intelephense.environment.phpVersion": "8.0.0",
+    "intelephense.files.exclude": [
+      "**/.git/**",
+      "**/.svn/**",
+      "**/.hg/**",
+      "**/CVS/**",
+      "**/.DS_Store/**",
+      "**/node_modules/**",
+      "**/bower_components/**",
+      "**/vendor/**/{Tests,tests}/**",
+      "**/.history/**",
+      "**/vendor/**/vendor/**",
+      "**/.migration-sql-backups/**",
+      "**/.migration-sql-transactions/**",
+      "**/.bak*/**"
+    ]
+  }
+}

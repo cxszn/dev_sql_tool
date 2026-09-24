@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'">
+  <title>Migration SQL Studio</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <svg class="icon-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-convert" viewBox="0 0 24 24"><path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4 4-4-4 4-4"/></symbol>
+    <symbol id="icon-code" viewBox="0 0 24 24"><path d="m8 6-6 6 6 6m8-12 6 6-6 6M14 4l-4 16"/></symbol>
+    <symbol id="icon-connect" viewBox="0 0 24 24"><path d="M8 8V3m8 5V3M5 8h14v3a7 7 0 0 1-14 0V8Zm7 10v4"/></symbol>
+    <symbol id="icon-folder" viewBox="0 0 24 24"><path d="M3 7V5a1 1 0 0 1 1-1h6l2 3h8a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7Z"/></symbol>
+    <symbol id="icon-file" viewBox="0 0 24 24"><path d="M14 2H5v20h14V7l-5-5Zm0 0v6h5M8 13h8m-8 4h6"/></symbol>
+    <symbol id="icon-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8V4Z"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24"><path d="m12 2 8 4v6c0 5-8 10-8 10S4 17 4 12V6l8-4Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="icon-save" viewBox="0 0 24 24"><path d="M4 3h13l4 4v14H3V3h1Zm3 0v7h10V3M7 21v-7h10v7"/></symbol>
+  </svg>
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="应用导航">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">m<span>_</span></span><div><strong>Migration</strong><span>SQL Studio</span></div></div>
+      <div class="nav-label">工作空间</div>
+      <nav class="navigation">
+        <button class="nav-item active" data-page="workspace" aria-current="page"><svg class="icon"><use href="#icon-convert"/></svg><span>转换工作台</span></button>
+        <button class="nav-item" data-page="reverse"><svg class="icon"><use href="#icon-code"/></svg><span>SQL → PHP</span></button>
+        <button class="nav-item" data-page="templates"><svg class="icon"><use href="#icon-code"/></svg><span>迁移模板</span></button>
+        <button class="nav-item" data-page="integration"><svg class="icon"><use href="#icon-connect"/></svg><span>AI 接入</span><span class="nav-tag">MCP</span></button>
+      </nav>
+      <div class="sidebar-bottom"><div class="local-label"><span class="status-dot"></span>本地转换引擎</div><p>PHP 与 SQL 双向转换<br>不连接数据库</p><div class="app-version">VERSION <span id="app-version">—</span></div></div>
+    </aside>
+
+    <main id="main-content" tabindex="-1">
+      <header class="page-header"><div><div class="eyebrow">MIGRATION SQL STUDIO</div><h1 id="page-title">转换工作台</h1><p id="page-description">用 PHP 编写结构与初始数据，转换为 PostgreSQL SQL。</p></div><span class="local-badge"><span class="status-dot"></span>本地工作空间</span></header>
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+      <section id="page-workspace" class="page-view" aria-labelledby="page-title">
+        <form id="conversion-form" novalidate>
+          <section class="panel settings-panel" aria-labelledby="settings-heading">
+            <div class="panel-heading"><h2 id="settings-heading">转换设置</h2><span class="section-caption">PHP → SQL</span></div>
+            <div class="path-fields">
+              <div class="field"><label for="input-dir">Migrations 文件夹 <span class="required" aria-hidden="true">*</span></label><div class="input-group"><input id="input-dir" name="inputDir" type="text" placeholder="选择包含 PHP migration 的文件夹" autocomplete="off" spellcheck="false" required><button class="button" id="choose-input" type="button"><svg class="icon"><use href="#icon-folder"/></svg>选择文件夹</button></div></div>
+              <div class="field"><label for="output-dir">SQL 输出文件夹 <span class="required" aria-hidden="true">*</span></label><div class="input-group"><input id="output-dir" name="outputDir" type="text" placeholder="选择 SQL 文件保存位置" autocomplete="off" spellcheck="false" required><button class="button" id="choose-output" type="button"><svg class="icon"><use href="#icon-folder"/></svg>选择文件夹</button></div><p class="field-hint">保留子目录与原文件名，移除开头的 migrations. 前缀，将 .php 改为 .sql。</p></div>
+            </div>
+            <div class="option-row"><div class="field version-field"><label for="target-version">转换输出格式</label><select id="target-version" name="targetVersion"><option value="16">PostgreSQL 16</option><option value="18">PostgreSQL 18</option></select></div><div class="guard-field"><label class="checkbox-label" for="guard"><input id="guard" name="guard" type="checkbox" checked><span>开启文件变更预检测</span><span class="small-tag">建议开启</span></label><p id="guard-description" class="field-hint">对比上次成功转换记录；PHP 或 SQL 被修改、删除时中断，新文件可追加。</p></div></div>
+            <details class="advanced"><summary><span>动态配置映射</span><span class="summary-hint">用于 config('key') · JSON</span></summary><div class="advanced-content"><label for="config-json">配置 JSON</label><textarea id="config-json" rows="4" spellcheck="false" aria-describedby="config-hint config-error">{}</textarea><p id="config-hint" class="field-hint">例如 rules 迁移使用 <code>config('permission.database.table')</code>，填写 <code>{"permission.database.table": "rules"}</code>。不读取或执行项目配置文件。</p><p id="config-error" class="validation-error" role="alert" hidden></p></div></details>
+            <div class="form-actions"><span id="operation-status" class="operation-status" role="status"><svg class="icon"><use href="#icon-shield"/></svg><span>先预览结果，再生成 SQL 文件</span></span><div class="action-buttons"><button id="preview-button" class="button" type="submit">预览转换</button><button id="convert-button" class="button button-primary" type="button"><svg class="icon"><use href="#icon-play"/></svg><span>生成 SQL</span></button></div></div>
+          </section>
+        </form>
+
+        <section class="results-section" aria-labelledby="results-heading">
+          <div class="results-heading"><h2 id="results-heading">转换结果</h2><div class="result-summary" id="result-summary" aria-live="polite"><span>等待预览</span></div><button id="open-output" class="button button-small" type="button" disabled><svg class="icon"><use href="#icon-folder"/></svg>打开输出目录</button></div>
+          <div id="diagnostics" class="diagnostics" hidden><h3 id="diagnostics-title">需要处理的问题</h3><ul id="diagnostic-list"></ul></div>
+          <div class="result-layout">
+            <section class="file-panel" aria-label="迁移文件列表"><div class="file-panel-toolbar"><span>迁移文件</span><span class="count" id="file-count">0</span></div><label class="sr-only" for="file-filter">搜索迁移文件</label><input id="file-filter" class="file-filter" type="search" placeholder="搜索文件名…" disabled><div id="file-empty" class="file-empty"><svg class="icon"><use href="#icon-file"/></svg><p>还没有转换记录</p><span>选择文件夹后点击「预览转换」</span></div><ul id="file-list" class="file-list"></ul><div class="file-panel-footer" id="file-panel-footer">支持 up()、静态 data() 与 exists_drop</div></section>
+            <section class="code-panel" aria-label="SQL 预览"><div class="code-toolbar"><div class="code-title"><span class="language-tag">SQL</span><span id="sql-filename">预览</span></div><div class="code-actions"><button id="wrap-sql" class="code-button" aria-pressed="false" type="button" title="切换自动换行">自动换行</button><button id="copy-sql" class="code-button" type="button" disabled><svg class="icon"><use href="#icon-copy"/></svg>复制</button></div></div><div id="sql-empty" class="code-empty"><span class="code-empty-symbol" aria-hidden="true">&lt;/&gt;</span><h3>生成前，先看清每一条 SQL</h3><p>预览会解析 PHP 并检查文件变更，<br>结果将在这里显示。</p><span class="code-empty-note">PostgreSQL 16 / 18</span></div><pre id="sql-preview" tabindex="0" aria-label="SQL 源码" hidden><code id="sql-content"></code></pre><div class="code-footer"><span id="sql-source">尚未选择文件</span><span id="sql-line-count">UTF-8</span></div></section>
+          </div>
+        </section>
+      </section>
+
+      <section id="page-reverse" class="page-view" aria-labelledby="page-title" hidden>
+        <form id="reverse-form" novalidate>
+          <section class="panel settings-panel" aria-labelledby="reverse-settings-heading">
+            <div class="panel-heading"><h2 id="reverse-settings-heading">SQL 来源与输出</h2><span class="section-caption">SQL → PHP</span></div>
+            <div class="reverse-path-fields">
+              <div class="field reverse-sources-field"><div class="field-label-row"><label for="reverse-source-files">SQL 文件列表 <span class="required" aria-hidden="true">*</span></label><span id="reverse-input-count" class="section-caption">尚未选择文件</span><button id="choose-sql-files" class="button button-small" type="button"><svg class="icon"><use href="#icon-file"/></svg>选择 SQL 文件</button></div><textarea id="reverse-source-files" name="sourceFiles" rows="4" placeholder="每行填写一个 .sql 文件的绝对路径，或使用上方按钮多选文件" spellcheck="false" required aria-describedby="reverse-source-hint"></textarea><p id="reverse-source-hint" class="field-hint">只处理列表中的文件，不扫描目录。重新选择会替换列表；也可直接增删路径。</p></div>
+              <div class="field reverse-destination-field"><label for="reverse-output-dir">PHP 输出文件夹 <span class="required" aria-hidden="true">*</span></label><div class="input-group"><input id="reverse-output-dir" name="outputDir" type="text" placeholder="选择 PHP migration 保存位置" autocomplete="off" spellcheck="false" required><button id="choose-reverse-output" class="button" type="button"><svg class="icon"><use href="#icon-folder"/></svg>选择文件夹</button></div><p class="field-hint">一份 .sql 对应同名 .php。多表结构和各表初始数据保留在同一个迁移类中，不按表拆分。</p><p class="reverse-safety-note"><svg class="icon"><use href="#icon-shield"/></svg><span>只生成 PHP 文件，不执行 SQL、不修改源文件。</span></p></div>
+            </div>
+            <div class="option-row"><div class="field version-field"><label for="reverse-target-version">PostgreSQL 版本</label><select id="reverse-target-version" name="targetVersion"><option value="16">PostgreSQL 16</option><option value="18">PostgreSQL 18</option></select></div><div class="guard-field"><label class="checkbox-label" for="reverse-guard"><input id="reverse-guard" name="guard" type="checkbox" checked><span>开启文件变更预检测</span><span class="small-tag">建议开启</span></label><p id="reverse-guard-description" class="field-hint">对比上次记录的源 SQL 与输出 PHP；修改、删除时中断，新文件可追加。</p></div></div>
+            <div class="form-actions"><span id="reverse-operation-status" class="operation-status" role="status"><svg class="icon"><use href="#icon-shield"/></svg><span>先预览 PHP 与往返校验结果</span></span><div class="action-buttons"><button id="reverse-preview-button" class="button" type="submit">预览 PHP</button><button id="reverse-convert-button" class="button button-primary" type="button"><svg class="icon"><use href="#icon-play"/></svg><span>生成 PHP</span></button></div></div>
+          </section>
+        </form>
+        <section class="results-section" aria-labelledby="reverse-results-heading">
+          <div class="results-heading"><h2 id="reverse-results-heading">PHP 转换结果</h2><div id="reverse-result-summary" class="result-summary" aria-live="polite"><span>等待预览</span></div><button id="reverse-open-output" class="button button-small" type="button" disabled><svg class="icon"><use href="#icon-folder"/></svg>打开输出目录</button></div>
+          <div id="reverse-analysis" class="reverse-analysis panel" hidden><dl id="reverse-metrics" class="reverse-metrics" aria-label="已解析 SQL 对象统计"></dl><div class="reverse-verification-row"><span id="reverse-verification" class="verification-state" role="status">往返校验待检查</span><span class="field-hint">校验 SQL → PHP → SQL 的受支持语义；不代表实际数据库导入。</span></div></div>
+          <div id="reverse-diagnostics" class="diagnostics" hidden><h3 id="reverse-diagnostics-title">需要处理的问题</h3><ul id="reverse-diagnostic-list"></ul></div>
+          <div class="result-layout reverse-result-layout">
+            <section class="file-panel" aria-label="SQL 来源文件列表"><div class="file-panel-toolbar"><span>SQL 来源文件</span><span id="reverse-file-count" class="count">0</span></div><label class="sr-only" for="reverse-file-filter">搜索 SQL 文件</label><input id="reverse-file-filter" class="file-filter" type="search" placeholder="搜索文件名或路径…" disabled><div id="reverse-file-empty" class="file-empty"><svg class="icon"><use href="#icon-file"/></svg><p>还没有转换记录</p><span>选择 SQL 文件后点击「预览 PHP」</span></div><ul id="reverse-file-list" class="file-list"></ul><div id="reverse-file-panel-footer" class="file-panel-footer">每份 SQL 生成一个 PHP migration</div></section>
+            <section class="code-panel" aria-label="PHP 预览"><div class="code-toolbar"><div class="code-title"><span class="language-tag">PHP</span><span id="reverse-php-filename" class="code-filename">预览</span></div><div class="code-actions"><button id="reverse-wrap-php" class="code-button" type="button" aria-pressed="false" title="切换自动换行">自动换行</button><button id="reverse-copy-php" class="code-button" type="button" disabled><svg class="icon"><use href="#icon-copy"/></svg>复制</button></div></div><div id="reverse-selected-details" class="selected-analysis" hidden></div><div id="reverse-php-empty" class="code-empty"><span class="code-empty-symbol" aria-hidden="true">&lt;?php</span><h3>把现有 SQL 变成可维护的迁移</h3><p>预览按文件保留结构与初始数据，<br>同时检查转换前后的语义是否一致。</p><span class="code-empty-note">一份 SQL → 一份 PHP</span></div><pre id="reverse-php-preview" tabindex="0" aria-label="生成的 PHP 源码" hidden><code id="reverse-php-content"></code></pre><div class="code-footer"><span id="reverse-php-source">尚未选择文件</span><span id="reverse-php-line-count">UTF-8</span></div></section>
+          </div>
+        </section>
+      </section>
+
+      <section id="page-templates" class="page-view" aria-labelledby="page-title" hidden>
+        <section id="ide-sdk-panel" class="panel ide-sdk-panel" aria-labelledby="ide-sdk-heading">
+          <div class="panel-heading"><h2 id="ide-sdk-heading">IDE 代码提示</h2><span id="ide-sdk-version" class="section-caption">SqlStudio</span></div>
+          <p class="panel-description">导出 SqlStudio PHP 提示包，获得中文方法说明、参数提示和链式补全。</p>
+          <div class="field"><label for="ide-sdk-project-dir">项目目录</label><div class="input-group"><input id="ide-sdk-project-dir" type="text" placeholder="选择包含迁移目录的项目或共同父目录" autocomplete="off" spellcheck="false" aria-describedby="ide-sdk-path-hint"><button id="choose-ide-sdk-project" class="button" type="button"><svg class="icon"><use href="#icon-folder"/></svg>选择文件夹</button><button id="export-ide-sdk" class="button button-primary" type="button" disabled><svg class="icon"><use href="#icon-save"/></svg><span>导出提示包</span></button></div><p id="ide-sdk-path-hint" class="field-hint">将创建 sql-studio-sdk 子目录。请选择项目目录，不要选择 migration 输入目录或其子目录。</p></div>
+          <p class="ide-sdk-instructions">在 VS Code / Cursor 或 IntelliJ IDEA 中，将提示包和迁移文件纳入同一项目索引，并启用 PHP 语言插件。提示包只用于代码编写；转换仍由客户端完成。</p>
+          <div id="ide-sdk-result" class="resource-row" hidden><div><span id="ide-sdk-result-label" class="resource-label">提示包已导出</span><code id="ide-sdk-output-path"></code></div><button id="open-ide-sdk" class="button button-small" type="button"><svg class="icon"><use href="#icon-folder"/></svg>打开提示包目录</button></div>
+        </section>
+        <div class="template-layout"><section class="panel template-catalog" aria-labelledby="template-list-heading"><div class="panel-heading"><h2 id="template-list-heading">可用模板</h2><span id="template-count" class="count">0</span></div><p class="catalog-hint">从受支持的 Schema 语法开始编写。</p><ul id="template-list" class="template-list"></ul><p id="template-list-empty" class="catalog-hint">正在读取模板…</p></section><div class="template-detail"><section class="panel template-info"><div><h2 id="template-name">选择迁移模板</h2><p id="template-description">查看模板源码，复制或另存为新的 PHP 文件。</p></div><button id="save-template" class="button button-primary" type="button" disabled><svg class="icon"><use href="#icon-save"/></svg>另存为 PHP</button></section><section class="code-panel template-code" aria-label="模板源码"><div class="code-toolbar"><div class="code-tabs" role="tablist" aria-label="模板格式"><button id="template-php-tab" role="tab" aria-selected="true" aria-controls="template-preview" data-template-format="php" class="code-tab active" type="button">PHP 模板</button><button id="template-sql-tab" role="tab" aria-selected="false" aria-controls="template-preview" data-template-format="sql" class="code-tab" type="button" disabled>SQL 示例</button></div><button id="copy-template" class="code-button" type="button" disabled><svg class="icon"><use href="#icon-copy"/></svg>复制源码</button></div><pre id="template-preview" role="tabpanel" aria-labelledby="template-php-tab" tabindex="0"><code id="template-content">选择左侧模板以查看源码。</code></pre><div class="code-footer"><span id="template-format-label">PHP · 静态解析</span><span>另存为不会覆盖已有文件</span></div></section><p class="template-note"><svg class="icon"><use href="#icon-shield"/></svg>模板只生成迁移文件；SQL 示例用于检查结构，不会执行到数据库。</p></div></div>
+      </section>
+
+      <section id="page-integration" class="page-view" aria-labelledby="page-title" hidden>
+        <div class="integration-grid"><section class="panel mcp-panel" aria-labelledby="mcp-heading"><div class="panel-heading"><h2 id="mcp-heading">MCP 本地连接</h2><span class="small-tag">stdio</span></div><p class="panel-description">将以下配置加入支持 MCP 的 AI 客户端，让 AI 通过同一引擎进行 PHP 与 SQL 双向转换。</p><div class="code-panel config-code"><div class="code-toolbar"><span class="language-tag">JSON</span><button id="copy-mcp" class="code-button" type="button" disabled><svg class="icon"><use href="#icon-copy"/></svg>复制连接配置</button></div><pre tabindex="0" aria-label="MCP 连接配置"><code id="mcp-config">正在读取本地连接配置…</code></pre></div><div class="integration-note"><svg class="icon"><use href="#icon-shield"/></svg><p>AI 调用同样经过文件保护检查。预览不写入文件，转换需要指定输入与输出目录。</p></div></section><section class="panel capabilities-panel" aria-labelledby="capabilities-heading"><div class="panel-heading"><h2 id="capabilities-heading">提供给 AI 的能力</h2></div><ul id="mcp-tools" class="capability-list"></ul><p id="mcp-tools-empty" class="panel-description">连接配置加载后显示可用工具。</p></section></div>
+        <section class="panel skills-panel" aria-labelledby="skills-heading"><div class="panel-heading"><h2 id="skills-heading">Skills 与智能体提示词</h2><span class="section-caption">与迁移规范保持一致</span></div><p class="panel-description">本地技能和提示词说明支持的 PHP 写法、版本要求与校验流程，可供 AI 客户端加载或按项目使用。</p><div class="resource-row"><div><span class="resource-label">本地技能目录</span><code id="skills-path">正在读取…</code></div><button id="copy-skills" class="button button-small" type="button" disabled><svg class="icon"><use href="#icon-copy"/></svg>复制路径</button></div><div class="resource-row" id="agents-row" hidden><div><span class="resource-label">智能体提示词目录</span><code id="agents-path"></code></div><button id="copy-agents" class="button button-small" type="button"><svg class="icon"><use href="#icon-copy"/></svg>复制路径</button></div><p class="field-hint">客户端的技能发现方式各不相同；这里显示的是实际本地路径，未自动修改任何 AI 客户端配置。</p></section>
+      </section>
+      <footer class="workspace-footer"><span>PHP Schema ↔ PostgreSQL</span><span>文件转换与数据库执行相互独立</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

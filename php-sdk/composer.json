@@ -1,0 +1,9 @@
+{
+  "name": "sql-studio/ide-sdk",
+  "description": "Migration SQL Studio PHP 编写提示 SDK；仅供 IDE 索引，不执行数据库迁移",
+  "version": "0.5.0",
+  "type": "library",
+  "require": { "php": ">=8.0" },
+  "autoload": { "psr-4": { "SqlStudio\\": "src/" } },
+  "keywords": ["ide", "stubs", "migration", "postgresql"]
+}
